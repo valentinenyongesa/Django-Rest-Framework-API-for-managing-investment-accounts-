@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class UserInline(admin.TabularInline):
     model = Group.user_set.through
@@ -8,7 +9,15 @@ class UserInline(admin.TabularInline):
 class GroupAdmin(admin.ModelAdmin):
     inlines = [UserInline]
 
-# Unregister the default Group admin
+# Customizing User Admin to manage group permissions
+class UserAdmin(BaseUserAdmin):
+    inlines = [UserInline]
+    filter_horizontal = ('groups',)  # Improved UI for managing groups
+
+# Unregister the default Group and User admin
 admin.site.unregister(Group)
-# Register the customized Group admin
+admin.site.unregister(User)
+
+# Register the customized Group and User admin
 admin.site.register(Group, GroupAdmin)
+admin.site.register(User, UserAdmin)
